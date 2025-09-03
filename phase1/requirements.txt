@@ -1,0 +1,39 @@
+# Telecom dbt Analytics Platform - Python Dependencies
+# Compatible with both Phase 1 (validation) and Phase 2 (analytics)
+
+# Core dbt with BigQuery adapter
+dbt-bigquery==1.10.1
+
+# Advanced testing and data quality
+dbt-expectations==0.10.1
+
+# Additional data quality monitoring (optional but recommended)
+elementary-data==0.15.0
+
+# Development and productivity tools
+dbt-osmosis==0.11.15          # Auto-generate schema.yml files
+pre-commit==3.4.0             # Code quality hooks
+
+# Data analysis and validation (for custom tests)
+pandas==2.0.3
+numpy==1.24.4
+
+# Environment management
+python-dotenv==1.0.0
+
+# Optional: Jupyter for data exploration
+jupyter==1.0.0
+ipykernel==6.25.2
+
+# Optional: Data visualization for validation reports
+plotly==5.17.0
+matplotlib==3.7.2
+
+# Documentation generation enhancements
+mkdocs==1.5.3
+mkdocs-material==9.4.2
+
+# Development utilities
+black==23.7.0                 # Code formatting
+isort==5.12.0                 # Import sorting
+flake8==6.0.0                 # Linting
