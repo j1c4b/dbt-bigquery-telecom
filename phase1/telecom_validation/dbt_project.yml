@@ -1,0 +1,72 @@
+name: 'telecom_validation'
+version: '1.0.0'
+config-version: 2
+
+# Profile configuration
+profile: 'telecom_validation'
+
+# Paths
+model-paths: ["models"]
+analysis-paths: ["analyses"] 
+test-paths: ["tests"]
+seed-paths: ["seeds"]
+macro-paths: ["macros"]
+snapshot-paths: ["snapshots"]
+
+# Cleanup
+clean-targets:
+  - "target"
+  - "dbt_packages"
+
+# PHASE 1 FOCUS: Structure validation and testing
+models:
+  telecom_validation:
+    # Staging models - focus on clean data for testing
+    staging:
+      +materialized: view
+      +meta:
+        purpose: "data_validation"
+        phase: "1_structure_validation"
+        node_color: "#F7931E"
+  # Elementary data quality monitoring configuration
+  elementary:
+    +schema: telecom_data_qa_monitor
+
+# Global test configurations for Phase 1
+tests:
+  +severity: 'error'  # Strict validation in Phase 1
+  +store_failures: true  # Store test failures for analysis
+
+# Variables for validation thresholds
+vars:
+  # Data quality thresholds
+  min_customer_age: 16
+  max_customer_age: 120
+  max_daily_data_gb: 100
+  max_monthly_bill: 500
+  
+  # Business rule parameters
+  valid_customer_statuses: ['Active', 'Inactive', 'Churned']
+  valid_plan_types: ['prepaid', 'postpaid']
+  
+  # Testing parameters
+  test_sample_size: 10000  # For performance on large tables
+  
+  # Phase control
+  current_phase: 1
+  enable_advanced_analytics: false
+
+# Dispatch configuration for dbt-expectations
+dispatch:
+  - macro_namespace: dbt_expectations
+    search_order: ['dbt_expectations', 'dbt']
+
+# Documentation configuration will be added in Phase 2
+  
+# On-run configurations
+on-run-start:
+  - "{{ log('Starting Phase 1: Data Structure Validation', info=true) }}"
+  - "CREATE SCHEMA IF NOT EXISTS `{{ target.project }}.{{ target.schema }}_validation_results`"
+
+on-run-end:
+  - "{{ log('Phase 1 validation complete. Check test results before proceeding to Phase 2.', info=true) }}"

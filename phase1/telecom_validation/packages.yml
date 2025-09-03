@@ -1,0 +1,16 @@
+packages:
+  # Essential testing package for advanced data validation
+  - package: calogica/dbt_expectations
+    version: [">=0.9.0", "<1.0.0"]
+    
+  # Utilities for testing and data quality
+  - package: dbt-labs/dbt_utils
+    version: [">=1.0.0", "<2.0.0"]
+    
+  # Additional data quality testing (optional)
+  - package: elementary-data/elementary
+    version: [">=0.13.0", "<1.0.0"]
+
+# Package installation notes:
+# After creating this file, run: dbt deps
+# This will install all testing packages needed for Phase 1 validation

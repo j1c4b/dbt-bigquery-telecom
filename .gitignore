@@ -11,6 +11,8 @@ phase1/keys/*.json
 .env
 **/.env
 **/.env.*
+# Allow environment templates
+!**/.env.template
 
 # dbt specific
 target/
