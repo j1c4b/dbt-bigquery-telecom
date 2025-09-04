@@ -1,0 +1,206 @@
+version: 2
+
+models:
+  # =============================================
+  # CUSTOMER CHURN RISK SCORING MODEL
+  # =============================================
+  - name: customer_churn_risk
+    description: |
+      **Advanced Customer Churn Risk Scoring Model**
+      
+      ML-inspired predictive model that identifies customers at risk of churning based on:
+      - Usage behavior patterns and volatility
+      - Billing history and payment patterns  
+      - Service quality experience metrics
+      - Plan stability and tenure analysis
+      
+      **Risk Score Range**: 0-10 (higher = more likely to churn)
+      **Categories**: STABLE, LOW_RISK, MEDIUM_RISK, HIGH_RISK
+    
+    columns:
+      - name: customer_id
+        description: "Unique customer identifier"
+        tests:
+          - not_null
+          - unique
+          
+      - name: churn_risk_category
+        description: "Risk categorization: STABLE, LOW_RISK, MEDIUM_RISK, HIGH_RISK"
+        tests:
+          - not_null
+          - accepted_values:
+              values: ['STABLE', 'LOW_RISK', 'MEDIUM_RISK', 'HIGH_RISK']
+              
+      - name: total_risk_score
+        description: "Combined risk score (0-10 scale)"
+        tests:
+          - not_null
+          - dbt_expectations.expect_column_values_to_be_between:
+              min_value: 0
+              max_value: 10
+              config:
+                severity: error
+                tags: ['analytics_validation', 'advanced']
+                
+      - name: immediate_intervention_required
+        description: "Boolean flag for customers needing immediate attention"
+        tests:
+          - not_null
+          
+      - name: avg_call_quality
+        description: "Average call quality score for customer"
+        tests:
+          - dbt_expectations.expect_column_values_to_be_between:
+              min_value: 1
+              max_value: 5
+              config:
+                severity: warn
+                tags: ['analytics_validation', 'advanced']
+
+  # =============================================
+  # REVENUE TREND ANALYSIS MODEL
+  # =============================================
+  - name: revenue_trend_analysis
+    description: |
+      **Advanced Revenue Trend Analysis Model**
+      
+      Comprehensive revenue analytics providing business intelligence on:
+      - Month-over-month and year-over-year growth trends
+      - Customer segmentation and revenue mix analysis
+      - ARPU (Average Revenue Per User) tracking
+      - Revenue forecasting indicators
+      
+      **Key Metrics**: Growth rates, customer mix, forecasting
+    
+    columns:
+      - name: billing_month
+        description: "Month of revenue analysis"
+        tests:
+          - not_null
+          - unique
+          
+      - name: total_monthly_revenue
+        description: "Total revenue for the month"
+        tests:
+          - not_null
+          - dbt_expectations.expect_column_values_to_be_between:
+              min_value: 0
+              max_value: 1000000
+              config:
+                severity: error
+                tags: ['analytics_validation', 'revenue_protection', 'advanced']
+                
+      - name: active_customers
+        description: "Number of active customers in the month"
+        tests:
+          - not_null
+          - dbt_expectations.expect_column_values_to_be_between:
+              min_value: 0
+              max_value: 100000
+              config:
+                severity: warn
+                tags: ['analytics_validation', 'advanced']
+                
+      - name: revenue_trend_category
+        description: "Revenue growth categorization"
+        tests:
+          - not_null
+          - accepted_values:
+              values: ['STRONG_GROWTH', 'POSITIVE_GROWTH', 'STABLE', 'DECLINING']
+              
+      - name: customer_mix_profile
+        description: "Customer value mix categorization"
+        tests:
+          - not_null
+          - accepted_values:
+              values: ['PREMIUM_HEAVY', 'BALANCED_MIX', 'VALUE_FOCUSED']
+              
+      - name: next_month_revenue_forecast
+        description: "Simple trend-based forecast for next month"
+        tests:
+          - dbt_expectations.expect_column_values_to_be_between:
+              min_value: 0
+              max_value: 2000000
+              config:
+                severity: warn
+                tags: ['analytics_validation', 'forecasting', 'advanced']
+
+  # =============================================
+  # NETWORK QUALITY CORRELATION MODEL
+  # =============================================
+  - name: network_quality_correlation
+    description: |
+      **Network Quality Correlation Analysis Model**
+      
+      Advanced correlation analysis between network performance and business outcomes:
+      - Quality-usage behavior relationships
+      - Quality-revenue impact analysis
+      - Customer satisfaction indicators
+      - Service improvement prioritization
+      
+      **Business Impact**: Identifies quality issues affecting high-value customers
+    
+    columns:
+      - name: customer_id
+        description: "Unique customer identifier"
+        tests:
+          - not_null
+          - unique
+          
+      - name: avg_call_quality
+        description: "Average call quality score"
+        tests:
+          - dbt_expectations.expect_column_values_to_be_between:
+              min_value: 0
+              max_value: 5
+              config:
+                severity: warn
+                tags: ['analytics_validation', 'quality_monitoring', 'advanced']
+                
+      - name: high_quality_ratio_pct
+        description: "Percentage of high-quality sessions"
+        tests:
+          - dbt_expectations.expect_column_values_to_be_between:
+              min_value: 0
+              max_value: 100
+              config:
+                severity: error
+                tags: ['analytics_validation', 'advanced']
+                
+      - name: poor_quality_ratio_pct
+        description: "Percentage of poor-quality sessions"
+        tests:
+          - dbt_expectations.expect_column_values_to_be_between:
+              min_value: 0
+              max_value: 100
+              config:
+                severity: error
+                tags: ['analytics_validation', 'advanced']
+                
+      - name: quality_usage_segment
+        description: "Combined quality and usage behavior segmentation"
+        tests:
+          - not_null
+          - accepted_values:
+              values: ['HIGH_QUALITY_HIGH_USAGE', 'HIGH_QUALITY_LOW_USAGE', 'POOR_QUALITY_HIGH_USAGE', 'POOR_QUALITY_LOW_USAGE', 'AVERAGE_QUALITY_USAGE']
+              
+      - name: satisfaction_indicator
+        description: "Customer satisfaction based on quality metrics"
+        tests:
+          - not_null
+          - accepted_values:
+              values: ['AT_RISK', 'MONITOR', 'SATISFIED', 'NEUTRAL']
+              
+      - name: business_impact_category
+        description: "Business impact classification"
+        tests:
+          - not_null
+          - accepted_values:
+              values: ['HIGH_IMPACT_ISSUE', 'MEDIUM_IMPACT_ISSUE', 'EXCELLENT_SERVICE', 'STANDARD_SERVICE']
+              
+      - name: improvement_priority
+        description: "Priority level for service improvements"
+        tests:
+          - not_null
+          - accepted_values:
+              values: ['CRITICAL_PRIORITY', 'HIGH_PRIORITY', 'MEDIUM_PRIORITY', 'LOW_PRIORITY']
