@@ -259,6 +259,39 @@ dbt test --select "tag:statistical_validation" # Test anomaly detection
 dbt test --select source:raw_telecom.billing_test_fail  # Verify framework works
 ```
 
+## 📊 **Elementary Data Quality Dashboard**
+
+### **✅ Free Interactive Dashboard**
+Your project includes a **professional data quality dashboard** powered by Elementary (open source):
+
+```bash
+# Generate beautiful HTML dashboard (FREE)
+cd phase1/telecom_validation
+source ../venv/bin/activate
+edr monitor report --open-browser true --file-path elementary_dashboard.html
+```
+
+### **🎯 Dashboard Features**
+- **📈 Test Results Visualization**: All 56+ tests displayed with charts and trends
+- **🔍 Statistical Analysis**: Advanced dbt-expectations results with anomaly detection
+- **📊 Test Coverage Matrix**: Comprehensive validation coverage across all tables
+- **⚡ Real-time Status**: Live data quality health scores and alerts
+- **🔗 Data Lineage**: Interactive source-to-model dependency visualization
+- **📋 Executive Summary**: Single-pane data health overview for stakeholders
+
+### **🚀 Perfect for Presentations**
+The dashboard showcases:
+- **Enterprise-grade reliability**: 52 PASS tests demonstrate robust validation
+- **Advanced analytics capabilities**: Statistical anomaly detection and business rules
+- **Professional reporting**: Interactive HTML dashboard with modern UI
+- **Comprehensive coverage**: Data quality monitoring across entire telecom pipeline
+
+### **📍 Dashboard Location**
+- **File**: `phase1/telecom_validation/elementary_dashboard.html`
+- **Size**: ~4MB (rich interactive content)
+- **Opens in**: Any modern web browser
+- **Updates**: Regenerate after running `dbt test` for latest results
+
 ## 🔐 Security
 
 - **Service account keys**: Never committed to Git
@@ -292,7 +325,8 @@ dbt test --select source:raw_telecom.billing_test_fail  # Verify framework works
 - ✅ **Anomaly detection** (pricing, quality, usage patterns)
 - ✅ **Revenue protection** (financial integrity monitoring)
 - ✅ Partition validation with data dependency handling
-- ✅ Quality monitoring and alerting (Elementary integration)
+- ✅ **Real-time data quality dashboard** (Elementary HTML report)
+- ✅ **Interactive test visualization** (comprehensive reporting)
 - ✅ Documentation generation
 - ✅ Virtual environment isolation
 
@@ -316,6 +350,7 @@ dbt test --select source:raw_telecom.billing_test_fail  # Verify framework works
 - [ ] Run comprehensive validation (`dbt test`) - Expect ~50+ PASS, 1 WARN, 2 FAIL (intentional)
 - [ ] Test advanced statistical validation (`dbt test --select "tag:advanced"`)
 - [ ] Verify test framework works (`dbt test --select source:raw_telecom.billing_test_fail`)
+- [ ] **Generate interactive dashboard** (`edr monitor report --open-browser true`)
 - [ ] Generate documentation (`dbt docs generate`)
 
 ## 📈 Next Steps
