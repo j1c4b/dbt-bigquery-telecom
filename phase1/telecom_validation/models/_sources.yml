@@ -24,12 +24,31 @@ sources:
             tests:
               - unique
               - not_null
+              # Advanced statistical validation
+              - dbt_expectations.expect_column_values_to_match_regex:
+                  regex: '^CUST_[A-Z0-9]{3,10}$'
+                  config:
+                    severity: warn
+                    tags: ['format_validation', 'advanced']
                   
           - name: email
             description: "Customer email - unique identifier for communication"
             tests:
               - unique
               - not_null
+              # Advanced email validation
+              - dbt_expectations.expect_column_values_to_match_regex:
+                  regex: '^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$'
+                  config:
+                    severity: error
+                    tags: ['format_validation', 'advanced']
+              # Statistical validation - email domain distribution
+              - dbt_expectations.expect_column_value_lengths_to_be_between:
+                  min_value: 5
+                  max_value: 100
+                  config:
+                    severity: warn
+                    tags: ['statistical_validation', 'advanced']
                     
           - name: phone_number
             description: "Primary contact number"
@@ -91,6 +110,20 @@ sources:
             description: "Monthly subscription fee"
             tests:
               - not_null
+              # Telecom business rule: monthly fees between $5-$500
+              - dbt_expectations.expect_column_values_to_be_between:
+                  min_value: 5.00
+                  max_value: 500.00
+                  config:
+                    severity: error
+                    tags: ['business_rule', 'telecom_specific', 'advanced']
+              # Statistical validation: detect pricing anomalies  
+              - dbt_expectations.expect_column_mean_to_be_between:
+                  min_value: 20.00
+                  max_value: 150.00
+                  config:
+                    severity: warn
+                    tags: ['statistical_validation', 'pricing_anomaly', 'advanced']
 
       # =============================================
       # USAGE_RECORDS TABLE
@@ -119,6 +152,20 @@ sources:
             description: "Date of usage"
             tests:
               - not_null
+              # Advanced date validation - no future dates
+              - dbt_expectations.expect_column_values_to_be_between:
+                  min_value: '2020-01-01'
+                  max_value: '{{ run_started_at.strftime("%Y-%m-%d") }}'
+                  config:
+                    severity: error
+                    tags: ['business_rule', 'temporal_validation', 'advanced']
+              # Statistical validation - usage date distribution
+              - dbt_expectations.expect_column_distinct_count_to_be_between:
+                  min_value: 1
+                  max_value: 365
+                  config:
+                    severity: warn
+                    tags: ['statistical_validation', 'data_quality', 'advanced']
 
       # =============================================
       # BILLING TABLE
@@ -147,6 +194,28 @@ sources:
             description: "Total bill amount"
             tests:
               - not_null
+              # Telecom business rule: billing amounts validation
+              - dbt_expectations.expect_column_values_to_be_between:
+                  min_value: 0
+                  max_value: 10000
+                  config:
+                    severity: error
+                    tags: ['business_rule', 'financial_validation', 'advanced']
+              # Advanced statistical validation: detect billing anomalies
+              - dbt_expectations.expect_column_quantile_values_to_be_between:
+                  quantile: 0.95
+                  min_value: 50
+                  max_value: 500
+                  config:
+                    severity: warn
+                    tags: ['statistical_validation', 'anomaly_detection', 'advanced']
+              # Revenue integrity: no negative amounts
+              - dbt_expectations.expect_column_min_to_be_between:
+                  min_value: 0
+                  max_value: 1000000
+                  config:
+                    severity: error
+                    tags: ['financial_integrity', 'revenue_protection', 'advanced']
 
       # =============================================
       # NETWORK_QUALITY TABLE
@@ -175,6 +244,27 @@ sources:
             description: "Call quality score (1-5 scale)"
             tests:
               - not_null
+              # Telecom business rule: quality scores 1-5 only
+              - dbt_expectations.expect_column_values_to_be_between:
+                  min_value: 1
+                  max_value: 5
+                  config:
+                    severity: error
+                    tags: ['business_rule', 'quality_assurance', 'advanced']
+              # Advanced statistical validation: quality distribution analysis
+              - dbt_expectations.expect_column_mean_to_be_between:
+                  min_value: 2.0
+                  max_value: 4.5
+                  config:
+                    severity: warn
+                    tags: ['statistical_validation', 'network_performance', 'advanced']
+              # Service level monitoring: detect quality degradation
+              - dbt_expectations.expect_column_stdev_to_be_between:
+                  min_value: 0.1
+                  max_value: 2.0
+                  config:
+                    severity: warn
+                    tags: ['service_monitoring', 'quality_variance', 'advanced']
 
       # =============================================
       # BILLING_TEST_FAIL TABLE - Intentional test failures
