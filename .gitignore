@@ -14,6 +14,9 @@ phase1/keys/*.json
 # Allow environment templates
 !**/.env.template
 
+# Documentation files (local reference only)
+phase1/docs/
+
 # dbt specific
 target/
 dbt_packages/
