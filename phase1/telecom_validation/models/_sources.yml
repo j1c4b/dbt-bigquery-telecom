@@ -16,6 +16,8 @@ sources:
       # =============================================
       - name: customers
         description: "Customer master data - foundation for all relationships"
+        tests:
+          - table_is_partitioned
         columns:
           - name: customer_id
             description: "Primary key - unique customer identifier"
@@ -57,6 +59,8 @@ sources:
       # =============================================
       - name: subscriptions
         description: "Customer subscription data"
+        tests:
+          - table_is_partitioned 'start_date'
         columns:
           - name: subscription_id
             description: "Primary key for subscription"
@@ -93,6 +97,8 @@ sources:
       # =============================================
       - name: usage_records
         description: "Daily usage records - high volume table"
+        tests:
+          - table_is_partitioned 'usage_date'
         columns:
           - name: usage_id
             description: "Unique usage record identifier"
@@ -119,6 +125,8 @@ sources:
       # =============================================
       - name: billing
         description: "Monthly billing records"
+        tests:
+          - table_is_partitioned 'billing_month'
         columns:
           - name: bill_id
             description: "Unique billing record identifier"
@@ -145,6 +153,8 @@ sources:
       # =============================================
       - name: network_quality
         description: "Network performance data"
+        tests:
+          - table_is_partitioned 'recorded_at'
         columns:
           - name: quality_id
             description: "Unique quality record identifier"
@@ -165,3 +175,45 @@ sources:
             description: "Call quality score (1-5 scale)"
             tests:
               - not_null
+
+      # =============================================
+      # BILLING_TEST_FAIL TABLE - Intentional test failures
+      # =============================================
+      - name: billing_test_fail
+        description: "Test table with intentional schema issues to validate dbt test failures"
+        # NOTE: No table-level tests because this table is not partitioned
+        columns:
+          - name: bill_id
+            description: "Unique billing record identifier"
+            tests:
+              - unique
+              - not_null
+                    
+          - name: customer_id
+            description: "Customer being billed"
+            tests:
+              - not_null
+              - relationships:
+                  arguments:
+                    to: source('raw_telecom', 'customers')
+                    field: customer_id
+                    
+          - name: billing_month
+            description: "INTENTIONAL ISSUE: This is STRING but should be DATE - expect type validation to fail"
+            tests:
+              - not_null
+              # This test should FAIL because billing_month is STRING, not DATE
+              - dbt_utils.expression_is_true:
+                  expression: "billing_month RLIKE '^[0-9]{4}-[0-9]{2}-[0-9]{2}$'"
+                  config:
+                    severity: warn
+                    tags: ['intentional_failure', 'data_type_test']
+                    
+          - name: total_amount
+            description: "INTENTIONAL ISSUE: This is nullable but should be NOT NULL - expect not_null test to fail"
+            tests:
+              # This test should FAIL because total_amount has NULL values
+              - not_null:
+                  config:
+                    severity: error
+                    tags: ['intentional_failure', 'completeness_test']

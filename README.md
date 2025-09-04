@@ -47,11 +47,16 @@ pip install -r requirements.txt
 
 ### 4. Initialize dbt Project
 ```bash
-cd telecom_validation/telecom_validation
+cd telecom_validation
 dbt debug  # Test connection
 dbt deps   # Install packages
+
+# Create tables with sample data first
+bq query < ../create_telecom_tables.sql
+
+# Run transformations and tests
 dbt run    # Run models
-dbt test   # Run data quality tests
+dbt test   # Run data quality tests (including partition validation)
 ```
 
 ## 📊 BigQuery Datasets
@@ -78,12 +83,87 @@ Phase 1 implements comprehensive data validation:
 2. **Business Rule Tests**: Telecom domain logic validation
 3. **Quality Tests**: Completeness, accuracy, consistency
 4. **Relationship Tests**: Foreign key and referential integrity
+5. **Partition Tests**: Table partitioning validation (requires sample data)
+6. **🔴 Intentional Failure Tests**: Validate test framework functionality
+
+## 🧪 Test Framework Validation
+
+### Intentional Test Failures (billing_test_fail table)
+We've included a **test table with purposeful schema issues** to prove our dbt validation framework works correctly:
+
+**Table**: `dbt-bigquery-telecom.telecom_raw_data.billing_test_fail`
+
+**🔴 Expected Failures:**
+- **`total_amount` NULL constraint**: Contains NULL values → **not_null test FAILS** ✅
+- **`billing_month` data type**: STRING instead of DATE → **type validation FAILS** ✅
+
+**✅ Expected Passes:**
+- Primary key uniqueness, foreign key relationships, other constraints
+
+### Testing the Test Framework
+```bash
+# Test only the intentional failure table
+dbt test --select source:raw_telecom.billing_test_fail
+
+# Expected output:
+# ✅ PASS: 5 tests (uniqueness, relationships, etc.)  
+# 🔴 FAIL: 2 tests (NULL constraint, data type validation)
+# This proves your dbt test framework is working correctly!
+```
+
+## 📋 Partition Testing Instructions
+
+### ⚠️ Critical: Partition Tests Require Data
+The partition validation tests (`test_table_is_partitioned`) **only work on tables with data**. BigQuery doesn't create partition metadata entries for empty partitioned tables.
+
+### Step-by-Step Testing Process
+
+#### 1️⃣ **First: Create Tables with Sample Data**
+```bash
+# This creates all tables AND inserts sample data
+bq query < phase1/create_telecom_tables.sql
+```
+
+#### 2️⃣ **Test Execution Options**
+
+**Option A: Run All Tests (After Data Insertion)**
+```bash
+# Run everything - works after step 1
+dbt test
+# Expected: All tests pass except 2 intentional failures in billing_test_fail
+```
+
+**Option B: Staged Testing (More Control)**
+```bash
+# Run non-partition tests first (works on empty tables)
+dbt test --exclude "test_name:table_is_partitioned"
+
+# Then run partition validation (requires data)
+dbt test --select "test_name:table_is_partitioned"
+
+# Test the failure validation separately
+dbt test --select source:raw_telecom.billing_test_fail
+```
+
+#### 3️⃣ **Understanding Test Results**
+```bash
+# Expected results after running all tests:
+# ✅ PASS: ~38 tests (data quality, relationships, partitions)
+# 🔴 FAIL: 2 tests (intentional failures in billing_test_fail)
+# 
+# If you see different results, check:
+# - Did you run the data insertion step?
+# - Are partition tests included in the run?
+```
 
 ## 🔧 Development Workflow
 
 ```bash
 # Activate environment
 source venv/bin/activate
+
+# Initial setup and data loading
+bq query < phase1/create_telecom_tables.sql  # Create tables with sample data
 
 # Development cycle
 dbt run --select +model_name+    # Run model with dependencies
@@ -93,6 +173,13 @@ dbt docs generate && dbt docs serve  # Generate documentation
 # Quality assurance
 dbt test --store-failures        # Store test failures for analysis
 dbt run --target test           # Run against test environment
+
+# Comprehensive validation (after data insertion)
+dbt test                         # Run all tests including partition validation
+                                # Expected: ~38 PASS, 2 FAIL (intentional)
+
+# Test framework validation
+dbt test --select source:raw_telecom.billing_test_fail  # Verify test framework works
 ```
 
 ## 🔐 Security
@@ -122,6 +209,8 @@ dbt run --target test           # Run against test environment
 - ✅ Automated BigQuery dataset creation
 - ✅ Service account security setup
 - ✅ Comprehensive data validation framework
+- ✅ **Test framework validation** (intentional failure testing)
+- ✅ Partition validation with data dependency handling
 - ✅ Quality monitoring and alerting
 - ✅ Documentation generation
 - ✅ Virtual environment isolation
@@ -142,7 +231,9 @@ dbt run --target test           # Run against test environment
 - [ ] Run service account setup script
 - [ ] Test dbt connection (`dbt debug`)
 - [ ] Install dbt packages (`dbt deps`)
-- [ ] Run initial data validation (`dbt test`)
+- [ ] Create tables with sample data (`bq query < phase1/create_telecom_tables.sql`)
+- [ ] Run initial data validation (`dbt test`) - Expect ~38 PASS, 2 FAIL (intentional)
+- [ ] Verify test framework works (`dbt test --select source:raw_telecom.billing_test_fail`)
 - [ ] Generate documentation (`dbt docs generate`)
 
 ## 📈 Next Steps
