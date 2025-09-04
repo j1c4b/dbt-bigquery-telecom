@@ -84,7 +84,47 @@ Phase 1 implements comprehensive data validation:
 3. **Quality Tests**: Completeness, accuracy, consistency
 4. **Relationship Tests**: Foreign key and referential integrity
 5. **Partition Tests**: Table partitioning validation (requires sample data)
-6. **🔴 Intentional Failure Tests**: Validate test framework functionality
+6. **🚀 Advanced Statistical Tests**: dbt-expectations powered analytics
+7. **🔴 Intentional Failure Tests**: Validate test framework functionality
+
+### 🚀 Advanced Statistical Validation
+
+Our platform includes **sophisticated data quality analysis** using dbt-expectations:
+
+#### **Statistical Analysis Tests:**
+- **Mean/Average Validation**: `expect_column_mean_to_be_between`
+- **Quantile Analysis**: `expect_column_quantile_values_to_be_between` 
+- **Standard Deviation**: `expect_column_stdev_to_be_between`
+- **Distribution Analysis**: `expect_column_distinct_count_to_be_between`
+
+#### **Telecom-Specific Business Rules:**
+- **Customer ID Format**: `CUST_[A-Z0-9]{3,10}` pattern validation
+- **Email Format**: RFC-compliant email regex validation
+- **Pricing Bounds**: Monthly fees $5-$500 business rule enforcement
+- **Quality Scores**: 1-5 scale validation with statistical distribution analysis
+- **Financial Integrity**: Revenue protection with anomaly detection
+
+#### **Advanced Test Examples:**
+```yaml
+# Pricing anomaly detection
+- dbt_expectations.expect_column_mean_to_be_between:
+    min_value: 20.00
+    max_value: 150.00
+    tags: ['statistical_validation', 'pricing_anomaly']
+
+# Quality distribution monitoring
+- dbt_expectations.expect_column_stdev_to_be_between:
+    min_value: 0.1
+    max_value: 2.0
+    tags: ['service_monitoring', 'quality_variance']
+
+# Revenue integrity protection
+- dbt_expectations.expect_column_quantile_values_to_be_between:
+    quantile: 0.95
+    min_value: 50
+    max_value: 500
+    tags: ['anomaly_detection', 'revenue_protection']
+```
 
 ## 🧪 Test Framework Validation
 
@@ -104,11 +144,15 @@ We've included a **test table with purposeful schema issues** to prove our dbt v
 ```bash
 # Test only the intentional failure table
 dbt test --select source:raw_telecom.billing_test_fail
+# Expected: ✅ 5 PASS, 🔴 2 FAIL (proves framework works!)
 
-# Expected output:
-# ✅ PASS: 5 tests (uniqueness, relationships, etc.)  
-# 🔴 FAIL: 2 tests (NULL constraint, data type validation)
-# This proves your dbt test framework is working correctly!
+# Test advanced statistical validation
+dbt test --select "tag:advanced"
+# Expected: ✅ ~14 PASS, ⚠️ 1 WARN (shows anomaly detection works!)
+
+# Test all validation levels
+dbt test
+# Expected: ✅ ~50+ PASS, ⚠️ 1 WARN, 🔴 2 FAIL (comprehensive validation!)
 ```
 
 ## 📋 Partition Testing Instructions
@@ -148,12 +192,42 @@ dbt test --select source:raw_telecom.billing_test_fail
 #### 3️⃣ **Understanding Test Results**
 ```bash
 # Expected results after running all tests:
-# ✅ PASS: ~38 tests (data quality, relationships, partitions)
+# ✅ PASS: ~50+ tests (data quality, relationships, partitions, statistical)
+# ⚠️ WARN: 1 test (pricing anomaly detection - shows system working!)
 # 🔴 FAIL: 2 tests (intentional failures in billing_test_fail)
+# 
+# Test Breakdown by Category:
+# - Basic validation: ~30 tests (uniqueness, null checks, relationships)
+# - Advanced statistical: ~14 tests (mean, quantile, pattern analysis)
+# - Partition validation: 5 tests (table structure validation)
+# - Intentional failures: 2 tests (framework validation)
 # 
 # If you see different results, check:
 # - Did you run the data insertion step?
 # - Are partition tests included in the run?
+# - Is dbt-expectations package installed?
+```
+
+## 📊 **Complete Test Coverage Overview**
+
+### **Production-Ready Validation (56+ Tests)**
+
+| **Test Category** | **Count** | **Purpose** | **Examples** |
+|---|---|---|---|
+| **Basic Validation** | ~30 | Data integrity | Uniqueness, null checks, relationships |
+| **Advanced Statistical** | ~14 | Anomaly detection | Mean analysis, quantile validation |
+| **Partition Structure** | 5 | Table optimization | Partition metadata validation |
+| **Business Rules** | ~7 | Telecom compliance | Pricing bounds, format validation |
+| **Intentional Failures** | 2 | Framework proof | NULL detection, type validation |
+
+### **Tag-Based Test Execution**
+```bash
+# Execute specific test categories
+dbt test --select "tag:advanced"              # Advanced statistical tests
+dbt test --select "tag:business_rule"         # Telecom business rules  
+dbt test --select "tag:statistical_validation" # Anomaly detection
+dbt test --select "tag:revenue_protection"    # Financial integrity
+dbt test --select "tag:intentional_failure"   # Framework validation
 ```
 
 ## 🔧 Development Workflow
@@ -175,11 +249,14 @@ dbt test --store-failures        # Store test failures for analysis
 dbt run --target test           # Run against test environment
 
 # Comprehensive validation (after data insertion)
-dbt test                         # Run all tests including partition validation
-                                # Expected: ~38 PASS, 2 FAIL (intentional)
+dbt test                         # Run all tests including advanced statistical validation
+                                # Expected: ~50+ PASS, 1 WARN, 2 FAIL (intentional)
 
-# Test framework validation
-dbt test --select source:raw_telecom.billing_test_fail  # Verify test framework works
+# Advanced testing workflows
+dbt test --select "tag:advanced"              # Test advanced statistical validation
+dbt test --select "tag:business_rule"         # Test telecom business rules
+dbt test --select "tag:statistical_validation" # Test anomaly detection
+dbt test --select source:raw_telecom.billing_test_fail  # Verify framework works
 ```
 
 ## 🔐 Security
@@ -208,10 +285,14 @@ dbt test --select source:raw_telecom.billing_test_fail  # Verify test framework 
 ### Phase 1 Capabilities
 - ✅ Automated BigQuery dataset creation
 - ✅ Service account security setup
-- ✅ Comprehensive data validation framework
+- ✅ **Comprehensive data validation framework** (50+ tests)
+- ✅ **Advanced statistical validation** (dbt-expectations powered)
+- ✅ **Telecom-specific business rules** (industry expertise)
 - ✅ **Test framework validation** (intentional failure testing)
+- ✅ **Anomaly detection** (pricing, quality, usage patterns)
+- ✅ **Revenue protection** (financial integrity monitoring)
 - ✅ Partition validation with data dependency handling
-- ✅ Quality monitoring and alerting
+- ✅ Quality monitoring and alerting (Elementary integration)
 - ✅ Documentation generation
 - ✅ Virtual environment isolation
 
@@ -232,7 +313,8 @@ dbt test --select source:raw_telecom.billing_test_fail  # Verify test framework 
 - [ ] Test dbt connection (`dbt debug`)
 - [ ] Install dbt packages (`dbt deps`)
 - [ ] Create tables with sample data (`bq query < phase1/create_telecom_tables.sql`)
-- [ ] Run initial data validation (`dbt test`) - Expect ~38 PASS, 2 FAIL (intentional)
+- [ ] Run comprehensive validation (`dbt test`) - Expect ~50+ PASS, 1 WARN, 2 FAIL (intentional)
+- [ ] Test advanced statistical validation (`dbt test --select "tag:advanced"`)
 - [ ] Verify test framework works (`dbt test --select source:raw_telecom.billing_test_fail`)
 - [ ] Generate documentation (`dbt docs generate`)
 
